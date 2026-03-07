@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login | MindCare</title>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f5f7fb;
+        }
+
+        .auth-container {
+            background: white;
+            width: 100%;
+            max-width: 800px;
+            padding: 55px 50px;
+            border-radius: 16px;
+            box-shadow: 0 25px 45px rgba(0,0,0,.1);
+            animation: fadeIn .8s ease;
+        }
+
+        .logo {
+            text-align: center;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 6px;
+            font-size: 30px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: gray;
+            font-size: 16px;
+            margin-bottom: 40px;
+        }
+
+        label {
+            font-size: 16px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            margin-bottom: 26px;
+            outline: none;
+            font-size: 16px;
+            transition: .3s;
+        }
+
+        input:focus {
+            border-color: #000;
+        }
+
+        .primary-btn {
+            width: 100%;
+            padding: 16px;
+            background: #000;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 17px;
+            cursor: pointer;
+            transition: .3s;
+        }
+
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            opacity: .9;
+        }
+
+        .error-msg {
+            background: #ffe5e5;
+            color: #b30000;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .auth-links {
+            text-align: center;
+            margin-top: 28px;
+            font-size: 15px;
+        }
+
+        .auth-links a {
+            color: black;
+            text-decoration: underline;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 32px;
+            font-size: 13px;
+            color: gray;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="auth-container">
+
+    <div class="logo">MindCare</div>
+
+    <h2>Welcome Back</h2>
+    <div class="subtitle">Login to continue your wellness journey</div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="error-msg">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        <label for="username">Username</label>
+        <input id="username" type="text" name="username" placeholder="Enter username" required>
+
+        <label for="password">Password</label>
+        <input id="password" type="password" name="password" placeholder="Enter password" required>
+
+        <button type="submit" class="primary-btn">Login</button>
+    </form>
+
+    <div class="auth-links">
+        Don’t have an account?
+        <a href="{% url 'register' %}">Register</a>
+        <br><br>
+        <a href="{% url 'home' %}">← Back to Home</a>
+    </div>
+
+    <div class="auth-footer">
+        © 2026 MindCare · Mental Wellness Platform
+    </div>
+
+</div>
+
+</body>
+</html>

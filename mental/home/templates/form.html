@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MindCare | Mental Wellness Assessment</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+
+<body>
+
+<div class="assessment-container">
+
+    <h2>Mental Wellness Assessment</h2>
+    <p class="sub-text">
+        Answer honestly based on how you felt during the <strong>past one week</strong>.
+    </p>
+    <p class="disclaimer"><strong>This is not a medical diagnosis.</strong></p>
+
+    <!-- PROGRESS BAR -->
+    <div class="progress-wrapper">
+        <div id="progressBar"></div>
+    </div>
+
+    <form id="assessmentForm" method="POST" action="{% url 'check_health' %}">
+        {% csrf_token %}
+
+        <!-- QUESTION BOX -->
+        <div id="questionBox"></div>
+
+        <!-- Hidden submit -->
+        <button type="submit" id="submitBtn" style="display:none;"></button>
+    </form>
+
+</div>
+
+<script>
+const questions = [
+    { name:"Q3_1_S1", text:"I found it hard to calm myself down or relax." },
+    { name:"Q3_2_S2", text:"I reacted too strongly to small problems." },
+    { name:"Q3_3_S3", text:"I felt mentally tense or nervous most of the time." },
+    { name:"Q3_4_S4", text:"I felt irritated or easily annoyed." },
+    { name:"Q3_5_S5", text:"I found it difficult to feel relaxed." },
+    { name:"Q3_6_S6", text:"I got upset when things interrupted my work or plans." },
+    { name:"Q3_7_S7", text:"I felt sensitive or touchy over small things." },
+
+    { name:"Q3_8_A1", text:"My mouth felt dry due to nervousness." },
+    { name:"Q3_9_A2", text:"I had trouble breathing even without physical effort." },
+    { name:"Q3_10_A3", text:"I experienced shaking or trembling." },
+    { name:"Q3_11_A4", text:"I worried about situations where I might panic." },
+    { name:"Q3_12_A5", text:"I felt close to having a panic attack." },
+    { name:"Q3_13_A6", text:"I noticed my heartbeat even when not exercising." },
+    { name:"Q3_14_A7", text:"I felt scared even when there was no clear reason." },
+
+    { name:"Q3_15_D1", text:"I was unable to feel happy or positive emotions." },
+    { name:"Q3_16_D2", text:"I found it hard to motivate myself." },
+    { name:"Q3_17_D3", text:"I felt that I had nothing to look forward to." },
+    { name:"Q3_18_D4", text:"I felt sad, low, or depressed." },
+    { name:"Q3_19_D5", text:"I couldn’t feel excited or interested in anything." },
+    { name:"Q3_20_D6", text:"I felt worthless or not good enough." },
+    { name:"Q3_21_D7", text:"I felt that life had no meaning." }
+];
+
+const options = [
+    { label:"Not at all", value:0 },
+    { label:"Sometimes", value:1 },
+    { label:"Often", value:2 },
+    { label:"Almost always", value:3 }
+];
+
+let current = 0;
+const box = document.getElementById("questionBox");
+const bar = document.getElementById("progressBar");
+
+function loadQuestion() {
+    const q = questions[current];
+    bar.style.width = ((current / questions.length) * 100) + "%";
+
+    box.innerHTML = `
+        <h3>${q.text}</h3>
+        <div class="option-grid">
+            ${options.map(o => `
+                <div class="option-card" onclick="selectAnswer('${q.name}', ${o.value})">
+                    ${o.label}
+                </div>
+            `).join("")}
+        </div>
+    `;
+}
+
+function selectAnswer(name, value) {
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = name;
+    input.value = value;
+    document.getElementById("assessmentForm").appendChild(input);
+
+    current++;
+
+    if (current < questions.length) {
+        loadQuestion();
+    } else {
+        bar.style.width = "100%";
+        document.getElementById("submitBtn").click();
+    }
+}
+
+loadQuestion();
+</script>
+
+</body>
+</html>
