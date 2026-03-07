@@ -32,6 +32,11 @@ if allowed_hosts:
 else:
     ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
+# Add Render external URL if available
+render_url = os.getenv('RENDER_EXTERNAL_URL')
+if render_url:
+    ALLOWED_HOSTS.append(render_url)
+
 
 # Applications
 INSTALLED_APPS = [
