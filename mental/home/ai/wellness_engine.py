@@ -1,6 +1,6 @@
 import json
 import re
-from .client import MODEL, get_ai_client
+from .client import MODEL, get_ai_client, reasoning_options
 from .image_fetcher import fetch_image
 
 
@@ -90,10 +90,11 @@ Return EXACTLY 6 activities.
             model=MODEL,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.6,
-            max_tokens=1200
+            max_tokens=2000,
+            extra_body=reasoning_options()
         )
 
-        raw = response.choices[0].message.content
+        raw = response.choices[0].message.content or ""
         print("RAW LLM RESPONSE:\n", raw)
 
         parsed = extract_json(raw)

@@ -1,4 +1,4 @@
-from .client import MODEL, get_ai_client
+from .client import MODEL, get_ai_client, reasoning_options
 
 SYSTEM_PROMPT = """
 You are MindCare — a gentle mental wellness assistant.
@@ -35,10 +35,17 @@ def chat_with_user(message):
                 {"role": "user", "content": message}
             ],
             temperature=0.4,
-            max_tokens=120
+            # Room for the model's own thinking plus a 2-3 line reply (the prompt keeps it short).
+            max_tokens=400,
+            extra_body=reasoning_options()
         )
 
-        return response.choices[0].message.content.strip()
+        reply = (response.choices[0].message.content or "").strip()
+
+        if not reply:
+            raise Exception("Empty reply from the model")
+
+        return reply
 
     except Exception as e:
         print("Chatbot error:", e)
