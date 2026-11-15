@@ -11,6 +11,10 @@ PIXABAY_URL = "https://pixabay.com/api/"
 
 def fetch_image(activity):
 
+    # No key, no photo: the activity cards still show without an image.
+    if not PIXABAY_KEY:
+        return None
+
     params = {
         "key": PIXABAY_KEY,
         "q": activity,
@@ -20,13 +24,18 @@ def fetch_image(activity):
         "per_page": 15
     }
 
-    r = requests.get(PIXABAY_URL, params=params, timeout=10)
+    # One failed photo lookup must not throw away the whole wellness report.
+    try:
+        r = requests.get(PIXABAY_URL, params=params, timeout=10)
 
-    if r.status_code != 200:
-        print("Pixabay error:", r.text)
+        if r.status_code != 200:
+            print("Pixabay error:", r.text)
+            return None
+
+        hits = r.json().get("hits", [])
+    except Exception as e:
+        print("Pixabay request failed:", e)
         return None
-
-    hits = r.json().get("hits", [])
 
     # 🧠 AI RANKING
     best = rank_images(activity, hits)

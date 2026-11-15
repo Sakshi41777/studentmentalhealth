@@ -26,16 +26,19 @@ SECRET_KEY = os.getenv(
 
 DEBUG = os.getenv("DEBUG", "True").lower() == "true"
 
-allowed_hosts = os.getenv("ALLOWED_HOSTS", "")
-if allowed_hosts:
-    ALLOWED_HOSTS = [h.strip() for h in allowed_hosts.split(",") if h.strip()]
-else:
-    ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS += [h.strip() for h in os.getenv("ALLOWED_HOSTS", "").split(",") if h.strip()]
 
-# Add Render external URL if available
-render_url = os.getenv('RENDER_EXTERNAL_URL')
-if render_url:
-    ALLOWED_HOSTS.append(render_url)
+# On Render: allow the service's own hostname (ALLOWED_HOSTS takes a hostname, not a full URL),
+# and trust its https:// origin so the login, register and assessment forms pass the CSRF check.
+CSRF_TRUSTED_ORIGINS = []
+render_host = os.getenv("RENDER_EXTERNAL_HOSTNAME")
+if render_host:
+    ALLOWED_HOSTS.append(render_host)
+    CSRF_TRUSTED_ORIGINS.append(f"https://{render_host}")
+
+# Render terminates HTTPS at its proxy and forwards plain HTTP with this header.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 
 # Applications
@@ -85,11 +88,12 @@ WSGI_APPLICATION = "mental.wsgi.application"
 
 
 # Database
+# DATABASE_URL (for example a Postgres database) is used when it is set; otherwise SQLite.
+# An empty DATABASE_URL counts as "not set".
+DATABASE_URL = os.getenv("DATABASE_URL") or f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
+
 DATABASES = {
-    "default": dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
-        conn_max_age=600,
-    )
+    "default": dj_database_url.parse(DATABASE_URL, conn_max_age=600)
 }
 
 

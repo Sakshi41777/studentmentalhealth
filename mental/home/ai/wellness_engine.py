@@ -1,6 +1,6 @@
 import json
 import re
-from .client import get_ai_client
+from .client import MODEL, get_ai_client
 from .image_fetcher import fetch_image
 
 
@@ -87,7 +87,7 @@ Return EXACTLY 6 activities.
         client = get_ai_client()
 
         response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model=MODEL,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.6,
             max_tokens=1200

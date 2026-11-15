@@ -1,0 +1,4 @@
+# Optional: embedding-based photo ranking (set SEMANTIC_RANKER=1 to use it). Needs about 1 GB of RAM.
+#   pip install -r requirements.txt -r requirements-ml.txt
+sentence-transformers==3.0.1
+scikit-learn==1.5.2

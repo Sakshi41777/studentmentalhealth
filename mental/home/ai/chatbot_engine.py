@@ -1,4 +1,4 @@
-from .client import get_ai_client
+from .client import MODEL, get_ai_client
 
 SYSTEM_PROMPT = """
 You are MindCare — a gentle mental wellness assistant.
@@ -24,16 +24,22 @@ Use comforting language.
 
 def chat_with_user(message):
 
-    client = get_ai_client()
+    # A missing key or an API hiccup should give a kind reply, not a server error.
+    try:
+        client = get_ai_client()
 
-    response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": message}
-        ],
-        temperature=0.4,
-        max_tokens=120
-    )
+        response = client.chat.completions.create(
+            model=MODEL,
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": message}
+            ],
+            temperature=0.4,
+            max_tokens=120
+        )
 
-    return response.choices[0].message.content.strip()
+        return response.choices[0].message.content.strip()
+
+    except Exception as e:
+        print("Chatbot error:", e)
+        return "I'm having trouble replying right now. Please try again in a moment."

@@ -1,27 +1,21 @@
+# Render blueprint (New > Blueprint). Secrets are typed into Render, never committed.
 services:
   - type: web
     name: mental-health-app
     runtime: python
-    buildCommand: |
-      pip install -r requirements.txt
-      cd mental
-      python manage.py migrate
-      python manage.py collectstatic --noinput
-    startCommand: cd mental && gunicorn mental.wsgi:application
+    plan: free
+    buildCommand: pip install -r requirements.txt && cd mental && python manage.py collectstatic --noinput && python manage.py migrate --noinput
+    startCommand: cd mental && gunicorn mental.wsgi:application --workers 2 --threads 2 --timeout 120
     envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
       - key: DEBUG
-        value: False
+        value: "False"
       - key: SECRET_KEY
         generateValue: true
-      - key: DATABASE_URL
-        fromDatabase:
-          name: mental-db
-          property: connectionString
-    healthCheckPath: /
-    plan: free
-
-databases:
-  - name: mental-db
-    databaseName: mental
-    user: mental
-    plan: free
+      - key: GROQ_API_KEY
+        sync: false
+      - key: PIXABAY_KEY
+        sync: false
+      # Optional: set DATABASE_URL to a Postgres database to keep accounts between restarts.
+      # Without it the app uses SQLite, which a free instance resets whenever it restarts.
