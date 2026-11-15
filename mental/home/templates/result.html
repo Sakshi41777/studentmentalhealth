@@ -154,7 +154,7 @@ This percentage reflects overall emotional strain from your answers. Lower % = f
 <div class="activity-card">
 <div class="activity-image">
 {% if activity.image_url %}
-<img src="{{ activity.image_url }}">
+<img src="{{ activity.image_url }}" alt="{{ activity.title }}" onerror="this.onerror=null;this.src='{{ activity.fallback_image }}';">
 {% endif %}
 </div>
 

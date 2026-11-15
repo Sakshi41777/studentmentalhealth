@@ -45,6 +45,36 @@ ACTIVITY_QUERY_MAP = {
 }
 
 
+# 🖼️ The app's own pictures, used when no photo is found or a photo fails to load.
+FALLBACK_IMAGES = [
+    (("breath", "meditat", "mindful", "ground", "calm"), "/static/images/breathing.jpg"),
+    (("yoga", "stretch", "muscle", "relax"), "/static/images/yoga.jpg"),
+    (("sleep", "rest", "sunset", "screen", "night", "bed"), "/static/images/sleep.jpg"),
+    (("walk", "nature", "exercise", "move", "outdoor", "run"), "/static/images/physical1.jpg"),
+]
+
+
+def fallback_image(title, index):
+    lowered = title.lower()
+    for words, path in FALLBACK_IMAGES:
+        if any(w in lowered for w in words):
+            return path
+    return FALLBACK_IMAGES[index % len(FALLBACK_IMAGES)][1]
+
+
+def photo_query(act):
+    """Search words for an activity's photo: the curated map, else the model's own words, else the title."""
+    title = act.get("title", "")
+    if title in ACTIVITY_QUERY_MAP:
+        return ACTIVITY_QUERY_MAP[title]
+    suggested = re.sub(r"[^A-Za-z ]", " ", str(act.get("image_query", ""))).strip()
+    if suggested:
+        return " ".join(suggested.split()[:6])
+    # Titles like "Guided Breathing (5 min)" search badly: drop brackets and numbers.
+    plain = re.sub(r"\(.*?\)|[^A-Za-z ]", " ", title)
+    return " ".join(plain.split()) + " calm person"
+
+
 def generate_wellness_report(level, stress, anxiety, depression):
 
     severity_map = {
@@ -75,7 +105,8 @@ Return STRICT JSON ONLY:
   "activities": [
     {{
       "title": "...",
-      "desc": "..."
+      "desc": "...",
+      "image_query": "2 to 4 plain words describing a calm stock photo for this activity"
     }}
   ]
 }}
@@ -101,18 +132,15 @@ Return EXACTLY 6 activities.
 
         if parsed and "activities" in parsed:
 
-            for act in parsed["activities"]:
+            for index, act in enumerate(parsed["activities"]):
 
-                title = act["title"]
+                title = act.get("title", "")
 
-                # ✅ Use mapped query if exists
-                search_query = ACTIVITY_QUERY_MAP.get(
-                    title,
-                    f"{title} wellness activity person"
-                )
+                img = fetch_image(photo_query(act))
 
-                img = fetch_image(search_query)
-                act["image_url"] = img or ""
+                # The template swaps to fallback_image if the photo cannot be loaded.
+                act["fallback_image"] = fallback_image(title, index)
+                act["image_url"] = img or act["fallback_image"]
 
             return parsed
 

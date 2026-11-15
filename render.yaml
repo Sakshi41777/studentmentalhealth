@@ -17,5 +17,7 @@ services:
         sync: false
       - key: PIXABAY_KEY
         sync: false
+      - key: PEXELS_KEY
+        sync: false
       # Optional: set DATABASE_URL to a Postgres database to keep accounts between restarts.
       # Without it the app uses SQLite, which a free instance resets whenever it restarts.
